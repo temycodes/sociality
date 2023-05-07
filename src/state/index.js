@@ -43,11 +43,8 @@ export const authSlice = createSlice({
     setUserDetails: (state, action) => {
       if (state.user) {
         state.user.phoneNumber = action.payload.phoneNumber;
-        //Get the current date of birth
         const dob = parseISO(state.user.dateOfBirth);
-        //Update the state with the new date of birth
         state.user.dateOfBirth = dob.toISOString().substring(0,10);
-        //Update other user details as needed
         state.user.username = action.payload.username;
         state.user.email = action.payload.email;
         state.user.picturePath = action.payload.picturePath;
