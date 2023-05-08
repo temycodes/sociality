@@ -1,1 +1,1 @@
-# sociality
+# socials
