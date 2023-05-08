@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useState } from "react";
 import {
   Box,
@@ -69,7 +69,7 @@ const Form = () => {
     formData.append("picturePath", values.picture.name);
 
     const savedUserResponse = await fetch(
-      "http://localhost:3001/auth/register",
+      "https://socials-api.onrender.com/auth/register",
       {
         method: "POST",
         body: formData,
@@ -84,11 +84,14 @@ const Form = () => {
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("https://socials-api.onrender.com/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
+    const loggedInResponse = await fetch(
+      "https://socials-api.onrender.com/auth/login",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      }
+    );
     const loggedIn = await loggedInResponse.json();
     onSubmitProps.resetForm();
     if (loggedIn) {
@@ -192,18 +195,14 @@ const Form = () => {
                   helperText={touched.occupation && errors.occupation}
                   sx={{ gridColumn: "span 4" }}
                 />
-                <TextField
-                  label="Date of Birth"
-                  variant="outlined"
-                  margin="normal"
-                  value={values.dateOfBirth}
-                />
-                <TextField
+                <Select
                   label="Gender"
-                  variant="outlined"
-                  margin="normal"
                   value={values.gender}
-                />
+                >
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="others">Others</MenuItem>
+                </Select>
                 <Box
                   gridColumn="span 4"
                   border={`1px solid ${palette.neutral.medium}`}
