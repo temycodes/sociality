@@ -123,7 +123,7 @@ const SignUpForm = () => {
               name="location"
               error={Boolean(touched.location) && Boolean(errors.location)}
               helperText={touched.location && errors.location}
-              sx={{ gridColumn: "span 4" }}
+              sx={{ gridColumn: "span 2" }}
             />
             <TextField
               label="Occupation"
@@ -133,7 +133,7 @@ const SignUpForm = () => {
               name="occupation"
               error={Boolean(touched.occupation) && Boolean(errors.occupation)}
               helperText={touched.occupation && errors.occupation}
-              sx={{ gridColumn: "span 4" }}
+              sx={{ gridColumn: "span 2" }}
             />
             <TextField
               label="Phone"
@@ -145,7 +145,7 @@ const SignUpForm = () => {
               name="phone"
               error={Boolean(touched.occupation) && Boolean(errors.occupation)}
               helperText={touched.occupation && errors.occupation}
-              sx={{ gridColumn: "span 2" }}
+              sx={{ gridColumn: "span 4" }}
             />
             <TextField
               select
@@ -158,7 +158,7 @@ const SignUpForm = () => {
               name="gender"
               error={Boolean(touched.gender) && Boolean(errors.gender)}
               helperText={touched.gender && errors.gender}
-              sx={{ gridColumn: "span 2" }}
+              sx={{ gridColumn: "span 4" }}
             >
               <MenuItem value="male">Male</MenuItem>
               <MenuItem value="female">Female</MenuItem>
@@ -199,16 +199,16 @@ const SignUpForm = () => {
               </Dropzone>
             </Box>
             <TextField
-              label="Email or Username"
+              label="Email"
               onBlur={handleBlur}
               onChange={handleChange}
-              value={values.usernameOrEmail}
-              name="usernameOrEmail"
+              value={values.email}
+              name="email"
               error={
-                Boolean(touched.usernameOrEmail) &&
-                Boolean(errors.usernameOrEmail)
+                Boolean(touched.email) &&
+                Boolean(errors.email)
               }
-              helperText={touched.usernameOrEmail && errors.usernameOrEmail}
+              helperText={touched.email && errors.email}
               sx={{ gridColumn: "span 4" }}
             />
           </Box>
