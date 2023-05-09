@@ -8,7 +8,7 @@ import { themeSettings } from "./theme";
 import NotFoundPage from "./scenes/404";
 
 const HomePage = lazy(() => import("./scenes/homePage"));
-const LoginPage = lazy(() => import("./scenes/authentication"));
+const LoginPage = lazy(() => import("./scenes/login"));
 const ProfilePage = lazy(() => import("./scenes/profilePage"));
 const SettingsPage = lazy(() => import("./scenes/settingsPage"));
 const EditSettings = lazy(() => import("./scenes/settingsPage/editSettings"));
