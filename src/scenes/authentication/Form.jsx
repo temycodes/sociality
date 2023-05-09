@@ -7,6 +7,8 @@ import {
   useMediaQuery,
   Typography,
   useTheme,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
@@ -21,10 +23,13 @@ const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
   usernameOrEmail: yup.string().email("invalid email").required("required"),
+  gender: yup.string().required("required"),
+  phone: yup.string().required("required"),
+  dateOfBirth: yup.string().required("required"),
   password: yup.string().required("required"),
   location: yup.string().required("required"),
-  occupation: yup.string().required("required"),
   picture: yup.string().required("required"),
+  occupation: yup.string().required("required"),
 });
 
 const loginSchema = yup.object().shape({
@@ -195,10 +200,7 @@ const Form = () => {
                   helperText={touched.occupation && errors.occupation}
                   sx={{ gridColumn: "span 4" }}
                 />
-                <Select
-                  label="Gender"
-                  value={values.gender}
-                >
+                <Select label="Gender" value="">
                   <MenuItem value="male">Male</MenuItem>
                   <MenuItem value="female">Female</MenuItem>
                   <MenuItem value="others">Others</MenuItem>
@@ -235,7 +237,20 @@ const Form = () => {
                       </Box>
                     )}
                   </Dropzone>
-                </Box>
+              </Box>
+            <TextField
+              label="Email or Username"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.usernameOrEmail}
+              name="usernameOrEmail"
+              error={
+                Boolean(touched.usernameOrEmail) &&
+                Boolean(errors.usernameOrEmail)
+              }
+              helperText={touched.usernameOrEmail && errors.usernameOrEmail}
+              sx={{ gridColumn: "span 4" }}
+            />
               </>
             )}
 
