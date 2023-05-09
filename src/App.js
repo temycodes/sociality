@@ -9,6 +9,7 @@ import NotFoundPage from "./scenes/404";
 
 const HomePage = lazy(() => import("./scenes/homePage"));
 const LoginPage = lazy(() => import("./scenes/login"));
+const SignUpPage = lazy(() => import("./scenes/signup"));
 const ProfilePage = lazy(() => import("./scenes/profilePage"));
 const SettingsPage = lazy(() => import("./scenes/settingsPage"));
 const EditSettings = lazy(() => import("./scenes/settingsPage/editSettings"));
@@ -26,6 +27,7 @@ function App() {
           <Suspense fallback={<div>Loading...</div> }>
             <Routes>
               <Route path="/" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
               <Route
                 path="/home"
                 element={isAuth ? <HomePage /> : <Navigate to="/" />}
