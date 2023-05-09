@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from "react";
 import {
   Box,
   Button,
@@ -8,14 +7,11 @@ import {
   Typography,
   useTheme,
   MenuItem,
-  Select,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setLogin } from "../../state/index";
 import Dropzone from "react-dropzone";
 import FlexBetween from "../FlexBetween";
 
@@ -30,11 +26,6 @@ const registerSchema = yup.object().shape({
   location: yup.string().required("required"),
   picture: yup.string().required("required"),
   occupation: yup.string().required("required"),
-});
-
-const loginSchema = yup.object().shape({
-  usernameOrEmail: yup.string().required("required"),
-  password: yup.string().required("required"),
 });
 
 const initialValuesRegister = {
@@ -53,12 +44,10 @@ const initialValuesRegister = {
 
 const SignUpForm = () => {
   const { palette } = useTheme();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const register = async (values, onSubmitProps) => {
-    // this allows us to send form info with image
     const formData = new FormData();
     for (let value in values) {
       formData.append(value, values[value]);
@@ -96,7 +85,6 @@ const SignUpForm = () => {
         handleChange,
         handleSubmit,
         setFieldValue,
-        resetForm,
       }) => (
         <form onSubmit={handleSubmit}>
           <Box
@@ -107,7 +95,6 @@ const SignUpForm = () => {
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
           >
-            {" "}
             <TextField
               label="First Name"
               onBlur={handleBlur}
@@ -160,11 +147,24 @@ const SignUpForm = () => {
               helperText={touched.occupation && errors.occupation}
               sx={{ gridColumn: "span 2" }}
             />
-            <Select label="Gender" value="" sx={{ gridColumn: "span 2" }}>
+            <TextField
+              select
+              fullWidth
+              defaultValue="male"
+              label="Gender"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.gender}
+              name="gender"
+              error={Boolean(touched.gender) && Boolean(errors.gender)}
+              helperText={touched.gender && errors.gender}
+              sx={{ gridColumn: "span 2" }}
+            >
               <MenuItem value="male">Male</MenuItem>
               <MenuItem value="female">Female</MenuItem>
-              <MenuItem value="others">Others</MenuItem>
-            </Select>
+              <MenuItem value="other">Others</MenuItem>
+            </TextField>
+
             <Box
               gridColumn="span 4"
               border={`1px solid ${palette.neutral.medium}`}
