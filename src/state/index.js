@@ -47,7 +47,7 @@ export const authSlice = createSlice({
         state.user.dateOfBirth = dob.toISOString().substring(0,10);
         state.user.username = action.payload.username;
         state.user.email = action.payload.email;
-        state.user.picturePath = action.payload.picturePath;
+        state.user.picture = action.payload.picture;
         state.user.gender = action.payload.gender;
       } else {
         console.error("User not found");

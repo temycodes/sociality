@@ -1,220 +1,111 @@
-import React from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  useMediaQuery,
-  Typography,
-  useTheme,
-  MenuItem,
-} from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { Formik } from "formik";
-import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
-import Dropzone from "react-dropzone";
-import FlexBetween from "../FlexBetween";
+import React from "reacct"
+import * as Yup from 'yup';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import axios from "axios";
 
-const registerSchema = yup.object().shape({
-  firstName: yup.string().required("required"),
-  lastName: yup.string().required("required"),
-  usernameOrEmail: yup.string().email("invalid email").required("required"),
-  gender: yup.string().required("required"),
-  phone: yup.string().required("required"),
-  dateOfBirth: yup.string().required("required"),
-  password: yup.string().required("required"),
-  location: yup.string().required("required"),
-  picture: yup.string().required("required"),
-  occupation: yup.string().required("required"),
-});
-
-const initialValuesRegister = {
-  username: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  gender: "",
-  phoneNumber: "",
-  dateOfBirth: "2000-01-01",
-  password: "",
-  picturePath: "",
-  location: "",
-  occupation: "",
-};
-
-const SignUpForm = () => {
-  const { palette } = useTheme();
-  const navigate = useNavigate();
-  const isNonMobile = useMediaQuery("(min-width:600px)");
-
-  const register = async (values, onSubmitProps) => {
-    const formData = new FormData();
-    for (let value in values) {
-      formData.append(value, values[value]);
-    }
-    formData.append("picturePath", values.picture.name);
-
-    const savedUserResponse = await fetch(
-      "https://socials-api.onrender.com/auth/register",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-    const savedUser = await savedUserResponse.json();
-    onSubmitProps.resetForm();
-
-    navigate("/home");
+function SignUpForm() {
+  const initialValues = {
+    username: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    dateOfBirth: null,
+    password: '',
+    location: ''
   };
 
-  const handleFormSubmit = async (values, onSubmitProps) => {
-    await register(values, onSubmitProps);
+  const validationSchema = Yup.object().shape({
+    username: Yup.string().required('Required'),
+    firstName: Yup.string().required('Required'),
+    lastName: Yup.string().required('Required'),
+    email: Yup.string().email('Invalid email').required('Required'),
+    phoneNumber: Yup.string().required('Required'),
+    dateOfBirth: Yup.date().nullable().required('Required').transform((value, originalValue) => {
+      if (originalValue) {
+        const [day, month, year] = originalValue.split('-');
+        return new Date(`${year}-${month}-${day}`);
+      }
+      return null;
+    }),
+    password: Yup.string().required('Required'),
+    location: Yup.string().required('Required')
+  });
+
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const response = await axios.post('/api/register', values);
+      console.log(response);
+      resetForm();
+    } catch (error) {
+      console.log(error.response.data);
+    }
+    setSubmitting(false);
   };
 
   return (
-    <Formik
-      onSubmit={handleFormSubmit}
-      initialValues={initialValuesRegister}
-      validationSchema={registerSchema}
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleBlur,
-        handleChange,
-        handleSubmit,
-        setFieldValue,
-      }) => (
-        <form onSubmit={handleSubmit}>
-          <Box
-            display="grid"
-            gap="30px"
-            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-            sx={{
-              "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-            }}
-          >
-            <TextField
-              label="First Name"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.firstName}
-              name="firstName"
-              error={Boolean(touched.firstName) && Boolean(errors.firstName)}
-              helperText={touched.firstName && errors.firstName}
-              sx={{ gridColumn: "span 2" }}
-            />
-            <TextField
-              label="Last Name"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.lastName}
-              name="lastName"
-              error={Boolean(touched.lastName) && Boolean(errors.lastName)}
-              helperText={touched.lastName && errors.lastName}
-              sx={{ gridColumn: "span 2" }}
-            />
-            <TextField
-              label="Location"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.location}
-              name="location"
-              error={Boolean(touched.location) && Boolean(errors.location)}
-              helperText={touched.location && errors.location}
-              sx={{ gridColumn: "span 2" }}
-            />
-            <TextField
-              label="Occupation"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.occupation}
-              name="occupation"
-              error={Boolean(touched.occupation) && Boolean(errors.occupation)}
-              helperText={touched.occupation && errors.occupation}
-              sx={{ gridColumn: "span 2" }}
-            />
-            <TextField
-              label="Phone"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              variant="outlined"
-              margin="normal"
-              value={values.phone}
-              name="phone"
-              error={Boolean(touched.occupation) && Boolean(errors.occupation)}
-              helperText={touched.occupation && errors.occupation}
-              sx={{ gridColumn: "span 4" }}
-            />
-            <TextField
-              select
-              fullWidth
-              defaultValue="male"
-              label="Gender"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.gender}
-              name="gender"
-              error={Boolean(touched.gender) && Boolean(errors.gender)}
-              helperText={touched.gender && errors.gender}
-              sx={{ gridColumn: "span 4" }}
-            >
-              <MenuItem value="male">Male</MenuItem>
-              <MenuItem value="female">Female</MenuItem>
-              <MenuItem value="other">Others</MenuItem>
-            </TextField>
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+      {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting, setFieldValue }) => (
+        <Form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="username">Username:</label>
+            <Field type="text" name="username" />
+            <ErrorMessage name="username" />
+          </div>
 
-            <Box
-              gridColumn="span 4"
-              border={`1px solid ${palette.neutral.medium}`}
-              borderRadius="5px"
-              p="1rem"
-            >
-              <Dropzone
-                acceptedFiles=".jpg,.jpeg,.png"
-                multiple={false}
-                onDrop={(acceptedFiles) =>
-                  setFieldValue("picture", acceptedFiles[0])
-                }
-              >
-                {({ getRootProps, getInputProps }) => (
-                  <Box
-                    {...getRootProps()}
-                    border={`2px dashed ${palette.primary.main}`}
-                    p="1rem"
-                    sx={{ "&:hover": { cursor: "pointer" } }}
-                  >
-                    <input {...getInputProps()} />
-                    {!values.picture ? (
-                      <p>Add Picture Here</p>
-                    ) : (
-                      <FlexBetween>
-                        <Typography>{values.picture.name}</Typography>
-                        <EditOutlinedIcon />
-                      </FlexBetween>
-                    )}
-                  </Box>
-                )}
-              </Dropzone>
-            </Box>
-            <TextField
-              label="Email"
+          <div>
+            <label htmlFor="firstName">First Name:</label>
+            <Field type="text" name="firstName" />
+            <ErrorMessage name="firstName" />
+          </div>
+
+          <div>
+            <label htmlFor="lastName">Last Name:</label>
+            <Field type="text" name="lastName" />
+            <ErrorMessage name="lastName" />
+          </div>
+
+          <div>
+            <label htmlFor="email">Email:</label>
+            <Field type="email" name="email" />
+            <ErrorMessage name="email" />
+          </div>
+
+          <div>
+            <label htmlFor="phoneNumber">Phone Number:</label>
+            <Field type="text" name="phoneNumber" />
+            <ErrorMessage name="phoneNumber" />
+          </div>
+
+          <div>
+            <label htmlFor="dateOfBirth">Date of Birth:</label>
+            <DatePicker
+              id="dateOfBirth"
+              name="dateOfBirth"
+              selected={values.dateOfBirth}
+              onChange={date => setFieldValue('dateOfBirth', date)}
               onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.email}
-              name="email"
-              error={
-                Boolean(touched.email) &&
-                Boolean(errors.email)
-              }
-              helperText={touched.email && errors.email}
-              sx={{ gridColumn: "span 4" }}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="yyyy-mm-dd"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
             />
-          </Box>
-        </form>
-      )}
-    </Formik>
+            {errors.dateOfBirth && touched.dateOfBirth && <div>{errors.dateOfBirth}</div>}
+          </div>
+
+          <div>
+            <label htmlFor="password">Password:</label>
+            <Field type="password" name="password" />
+            <ErrorMessage name="password" />
+          </div>
+
+            <button type="submit">Register</button>
+          </Form>
+        )}
+      </Formik>
   );
 };
 
