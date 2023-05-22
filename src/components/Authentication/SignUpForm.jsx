@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import AWS from "aws-sdk";
 
 function SignUpForm() {
   const initialValues = {
@@ -15,15 +16,7 @@ function SignUpForm() {
     dateOfBirth: "",
     password: "",
     location: "",
-    occupation: "",
-    avatar: {
-      fieldname: "",
-      originalname: "",
-      encoding: "",
-      mimetype: "",
-      size: 0,
-      location: ""
-    }
+    avatar: "",
   };
 
   const navigate = useNavigate();
@@ -39,41 +32,49 @@ function SignUpForm() {
     dateOfBirth: Yup.date()
       .max(moment().format("YYYY-MM-DD"), "Date of birth cannot be in the future")
       .required("Date of Birth is required"),
-    password: Yup.string().required("Password is required"),
-    avatar: Yup.mixed().required("Avatar is definitely required")
+    avatar: Yup.mixed().required("Avatar is definitely required"),
   });
 
-  const handleSubmit = async (values, { resetForm }) => {
-    const formData = new FormData();
-
-    for (let value in values) {
-      if (value === "avatar") {
-        for (let avatarProp in values.avatar) {
-          formData.append(`avatar.${avatarProp}`, values.avatar[avatarProp]);
-        }
-      } else {
-        formData.append(value, values[value]);
-      }
-    }
-
+  const uploadAvatar = async (values, { resetForm }) => {
     try {
-      setSubmitting(true);
+      const avatarFile = values.avatar;
+      if (!avatarFile) {
+        throw new Error("Avatar file not found");
+      }
 
-      const response = await axios.post("http://localhost:3001/auth/register", formData);
+      const s3 = new AWS.S3({
+        secretAccessKey: "YOUR_AWS_SECRET_ACCESS_KEY",
+        accessKeyId: "YOUR_AWS_ACCESS_KEY_ID",
+        region: "YOUR_AWS_REGION",
+      });
+
+      const fileName = `${Date.now()}-${avatarFile.name}`;
+      const params = {
+        Bucket: "YOUR_AWS_BUCKET_NAME",
+        Key: fileName,
+        ACL: "public-read",
+        Body: avatarFile,
+      };
+
+      const uploadResult = await s3.upload(params).promise();
+      const avatarURL = uploadResult.Location;
+
+      const formData = {
+        ...values,
+        avatar: avatarURL,
+      };
+
+      const response = await axios.post(
+        "http://localhost:3001/auth/register",
+        formData
+      );
 
       console.log("Response:", response.data); // Check the response received from the server
 
       resetForm();
       navigate("/home");
     } catch (error) {
-      if (error.response) {
-        const errorMessage = error.response.data.message;
-        console.log("Error:", errorMessage);
-      } else if (error.request) {
-        console.log("Error:", error.request);
-      } else {
-        console.log("Error:", error.message);
-      }
+      console.log("Error:", error.message);
     } finally {
       setSubmitting(false);
     }
@@ -83,9 +84,9 @@ function SignUpForm() {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={handleSubmit}
+      onSubmit={uploadAvatar}
     >
-      <Form>
+      <Form encType="multipart/form-data">
         <div>
           <label htmlFor="username">Username:</label>
           <Field type="text" name="username" />
@@ -135,8 +136,8 @@ function SignUpForm() {
 
         <div>
           <label htmlFor="avatar">Upload your image:</label>
-          <Field type="file" name="avatar.fieldname" />
-          <ErrorMessage name="avatar.filename" component="div" />
+          <Field type="file" name="avatar" />
+          <ErrorMessage name="avatar" component="div" />
         </div>
 
         <div>
