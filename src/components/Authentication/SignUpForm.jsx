@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
-import AWS from "aws-sdk";
+import "./styles.css";
 
 function SignUpForm() {
   const initialValues = {
@@ -16,11 +16,14 @@ function SignUpForm() {
     dateOfBirth: "",
     password: "",
     location: "",
-    avatar: "",
+    occupation: "",
+    gennder: "",
+    avatar: ""
   };
 
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [avatar, setAvatar] = useState(null);
 
   const validationSchema = Yup.object().shape({
     username: Yup.string().required("Username is required"),
@@ -35,44 +38,27 @@ function SignUpForm() {
     avatar: Yup.mixed().required("Avatar is definitely required"),
   });
 
-  const uploadAvatar = async (values, { resetForm }) => {
+
+  const handleSubmit = async (values) => {
     try {
-      const avatarFile = values.avatar;
-      if (!avatarFile) {
-        throw new Error("Avatar file not found");
-      }
-
-      const s3 = new AWS.S3({
-        secretAccessKey: "YOUR_AWS_SECRET_ACCESS_KEY",
-        accessKeyId: "YOUR_AWS_ACCESS_KEY_ID",
-        region: "YOUR_AWS_REGION",
-      });
-
-      const fileName = `${Date.now()}-${avatarFile.name}`;
-      const params = {
-        Bucket: "YOUR_AWS_BUCKET_NAME",
-        Key: fileName,
-        ACL: "public-read",
-        Body: avatarFile,
+      const formData = new FormData();
+      for(let value in values) {
+        formData.append(value, values[value]);
       };
+      formData.append("avatar", values.avatar.name);
 
-      const uploadResult = await s3.upload(params).promise();
-      const avatarURL = uploadResult.Location;
-
-      const formData = {
-        ...values,
-        avatar: avatarURL,
-      };
-
-      const response = await axios.post(
+      const savedUserResponse = await axios.post(
         "http://localhost:3001/auth/register",
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-
-      console.log("Response:", response.data); // Check the response received from the server
-
-      resetForm();
-      navigate("/home");
+      const saveUser = await savedUserResponse.json();
+      document.getElementById("file-type").value = "";
+      console.log(saveUser)
     } catch (error) {
       console.log("Error:", error.message);
     } finally {
@@ -84,12 +70,12 @@ function SignUpForm() {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={uploadAvatar}
+      onSubmit={handleSubmit}
     >
       <Form encType="multipart/form-data">
         <div>
           <label htmlFor="username">Username:</label>
-          <Field type="text" name="username" />
+          <Field type="text" name="username" className="test"/>
           <ErrorMessage name="username" component="div" />
         </div>
 
@@ -134,11 +120,13 @@ function SignUpForm() {
           <ErrorMessage name="dateOfBirth" component="div" />
         </div>
 
-        <div>
-          <label htmlFor="avatar">Upload your image:</label>
-          <Field type="file" name="avatar" />
-          <ErrorMessage name="avatar" component="div" />
-        </div>
+        <Field
+  type="file"
+  name="avatar"
+  id="file-type"
+  onChange={(e) => setAvatar(e.target.files[0])}
+/>
+
 
         <div>
           <label htmlFor="password">Password:</label>
