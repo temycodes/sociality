@@ -18,12 +18,11 @@ function SignUpForm() {
     location: "",
     occupation: "",
     gennder: "",
-    avatar: ""
+    avatar: "",
   };
 
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
-  const [avatar, setAvatar] = useState(null);
 
   const validationSchema = Yup.object().shape({
     username: Yup.string().required("Username is required"),
@@ -33,18 +32,20 @@ function SignUpForm() {
     gender: Yup.string().required("Gender is required"),
     phoneNumber: Yup.string().required("Phone Number is required"),
     dateOfBirth: Yup.date()
-      .max(moment().format("YYYY-MM-DD"), "Date of birth cannot be in the future")
+      .max(
+        moment().format("YYYY-MM-DD"),
+        "Date of birth cannot be in the future"
+      )
       .required("Date of Birth is required"),
     avatar: Yup.mixed().required("Avatar is definitely required"),
   });
 
-
   const handleSubmit = async (values) => {
     try {
       const formData = new FormData();
-      for(let value in values) {
+      for (let value in values) {
         formData.append(value, values[value]);
-      };
+      }
       formData.append("avatar", values.avatar.name);
 
       const savedUserResponse = await axios.post(
@@ -58,7 +59,8 @@ function SignUpForm() {
       );
       const saveUser = await savedUserResponse.json();
       document.getElementById("file-type").value = "";
-      console.log(saveUser)
+      console.log(saveUser);
+      navigate("/home")
     } catch (error) {
       console.log("Error:", error.message);
     } finally {
@@ -75,7 +77,7 @@ function SignUpForm() {
       <Form encType="multipart/form-data">
         <div>
           <label htmlFor="username">Username:</label>
-          <Field type="text" name="username" className="test"/>
+          <Field type="text" name="username" className="test" />
           <ErrorMessage name="username" component="div" />
         </div>
 
@@ -121,12 +123,11 @@ function SignUpForm() {
         </div>
 
         <Field
-  type="file"
-  name="avatar"
-  id="file-type"
-  onChange={(e) => setAvatar(e.target.files[0])}
-/>
-
+          type="file"
+          name="avatar"
+          id="file-type"
+          onChange={(e) => setAvatar(e.target.files[0])}
+        />
 
         <div>
           <label htmlFor="password">Password:</label>
